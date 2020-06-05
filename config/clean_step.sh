@@ -1,0 +1,1 @@
+rm ../models/step*
