@@ -64,5 +64,4 @@ Our paper has been formally accepted by the IEEE Transactions on Image Processin
 ```
 
 # Contact:
-Just raise an issue, or e-mail to:
-Hanrong Ye: leoyhr AT pku.edu.cn
+Just raise an issue, or e-mail to Hanrong Ye: leoyhr AT pku.edu.cn
