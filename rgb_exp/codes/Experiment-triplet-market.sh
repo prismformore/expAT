@@ -1,0 +1,2 @@
+# Criterion: Softmax Loss + Triplet Loss
+python tools/train.py --config_file='configs/softmax_triplet.yml' MODEL.DEVICE_ID "('5')" DATASETS.NAMES "('market1501')" DATASETS.ROOT_DIR "('/app/rgbir/rgbreid/data')" OUTPUT_DIR "('../log/market1501/triplet')"

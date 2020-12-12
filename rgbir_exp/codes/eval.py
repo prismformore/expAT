@@ -1,3 +1,7 @@
+"""
+Angular Triplet Loss
+YE, Hanrong et al, Bi-directional Exponential Angular Triplet Loss for RGB-Infrared Person Re-Identification
+"""
 from __future__ import print_function, absolute_import
 import numpy as np
 import copy
@@ -22,39 +26,8 @@ def test(feature_generators, queryloader, galleryloader, use_gpu = True, ranks=[
     with torch.no_grad():
         qf, q_pids, q_camids = [], [], []
         for batch_idx, (imgs, pids, camids) in enumerate(queryloader):
-
-            '''
-            print(imgs.shape)
-            img_np = imgs.numpy()
-            img_one = np.transpose(img_np[1,:], (1,2,0))
-            print(img_one.shape)
-            plt.imshow(img_one)
-            plt.show()
-            '''
-
-            #print(imgs,pids,camids)
-            #input()
-
-            #print(imgs,pids,camids)
             if use_gpu: imgs = imgs.cuda()
-
-            #end = time.time()
-            
-            #print('query', pids, camids)
-            
-            features = feature_generator_ir(imgs) # query features # use fi
-
-            
-            '''
-            if (not batch_idx):
-                print('img ip range') 
-                print(torch.unique(imgs,sorted=True))  
-                print('feature op range') 
-                print(torch.unique(features,sorted=True))
-            '''
-
-            #batch_time.update(time.time() - end)
-            
+            features = feature_generator_ir(imgs) # query features # use fi   
             features = features.data#.cpu()
             qf.append(features)
             q_pids.extend(pids)
@@ -69,38 +42,9 @@ def test(feature_generators, queryloader, galleryloader, use_gpu = True, ranks=[
         gf, g_pids, g_camids = [], [], []
         #end = time.time()
         for batch_idx, (imgs, pids, camids) in enumerate(galleryloader):
-            
-            '''
-            print(imgs.shape)
-            img_np = imgs.numpy()
-            img_one = np.transpose(img_np[1,:], (1,2,0))
-            print(img_one.shape)
-            plt.imshow(img_one)
-            plt.show()
-            '''
-
-            #print(imgs,pids,camids)
             if use_gpu: imgs = imgs.cuda()
 
-            #print(imgs,pids,camids)
-            #input()
-
-            #end = time.time()
-            
-            #print('gallery', pids, camids)
-
             features = feature_generator_rgb(imgs)
-
-            '''
-            if (not batch_idx):
-                print('img ip range') 
-                print(torch.unique(imgs,sorted=True))  
-                print('feature op range') 
-                print(torch.unique(features,sorted=True))
-            '''
-
-            #batch_time.update(time.time() - end)
-
             features = features.data#.cpu()
             gf.append(features)
             g_pids.extend(pids)
@@ -112,7 +56,6 @@ def test(feature_generators, queryloader, galleryloader, use_gpu = True, ranks=[
 
         print("Extracted features for gallery set, obtained {}-by-{} matrix".format(gf.size(0), gf.size(1)))
 
-    #print("==> BatchTime(s)/BatchSize(img): {:.3f}/{}".format(batch_time.avg, 32))
 
     qf = qf.view(qf.size(0),-1)
     gf = gf.view(gf.size(0),-1)
@@ -177,8 +120,6 @@ def evaluate(distmat, q_pids, g_pids, q_camids, g_camids, max_rank=50):
             print('Query ID',q_pid)
             for g_idx in range(20):
                 print('Gallery ID Rank #', g_idx ,' : ', g_pids[order[g_idx]], 'distance : ', distmat[q_idx][order[g_idx]])
-
-        #input()
 
         # compute cmc curve
         orig_cmc = matches[q_idx][keep] # binary vector, positions with value 1 are correct matches

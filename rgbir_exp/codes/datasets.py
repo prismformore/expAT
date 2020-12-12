@@ -1,3 +1,8 @@
+"""
+Angular Triplet Loss
+YE, Hanrong et al, Bi-directional Exponential Angular Triplet Loss for RGB-Infrared Person Re-Identification
+"""
+
 import glob
 import random
 import os
@@ -13,7 +18,7 @@ import h5py
 from scipy.misc import imsave
 import random
 import time
-
+import settings
 import torch
 import numpy as np
 from torch.utils.data import Dataset
@@ -271,3 +276,229 @@ class Image_dataset(Dataset):
         if self.transform is not None:
             img = self.transform(img)
         return img, pid, camid
+
+class RegDB_triplet_dataset(Dataset):
+
+    def __init__(self, data_dir, transforms_list=None, mode='train', trial=1):
+
+        if mode == 'train':
+            self.visible_files = 'train_visible_' + str(trial) + '.txt'
+            self.thermal_files = 'train_thermal_' + str(trial) + '.txt'
+        elif mode == 'val':
+            self.visible_files = 'test_visible_' + str(trial) + '.txt'
+            self.thermal_files = 'test_thermal_' + str(trial) + '.txt'
+        else:
+            self.visible_files = 'test_visible_' + str(trial) + '.txt'
+            self.thermal_files = 'test_thermal_' + str(trial) + '.txt'
+
+
+        color_list   = os.path.join(data_dir, 'idx', self.visible_files)
+        thermal_list = os.path.join(data_dir, 'idx', self.thermal_files)
+
+        color_img_file, color_label = self.load_data(color_list)
+        thermal_img_file, thermal_label = self.load_data(thermal_list)
+
+        color_image = []
+        color_image_path = []
+        for i in range(len(color_img_file)):
+            img_path = os.path.join(data_dir, color_img_file[i])
+            color_image_path.append(img_path)
+            img = Image.open(img_path)
+            img = img.resize(settings.inp_size[::-1]) #img.resize((144, 288), Image.ANTIALIAS) # (width, height)
+            color_image.append(img)
+        thermal_image = []
+        thermal_image_path = []
+        for i in range(len(thermal_img_file)):
+            img_path = os.path.join(data_dir, thermal_img_file[i])
+            thermal_image_path.append(img_path)
+            img = Image.open(img_path)
+            img = img.resize(settings.inp_size[::-1], Image.ANTIALIAS)
+            thermal_image.append(img)
+
+        # make dict
+        color_img_dict = {}
+        for i in range(len(color_label)):
+            label = color_label[i]
+            if label not in color_img_dict.keys():
+                color_img_dict[label] = []
+
+            color_img_dict[label].append(i)
+
+        thermal_img_dict = {}
+        for i in range(len(thermal_label)):
+            label = thermal_label[i]
+            if label not in thermal_img_dict.keys():
+                thermal_img_dict[label] = []
+
+            thermal_img_dict[label].append(i)
+
+        self.color_image = color_image
+        self.color_label = color_label
+        self.thermal_image = thermal_image
+        self.thermal_label = thermal_label
+        self.color_img_dict = color_img_dict
+        self.thermal_img_dict = thermal_img_dict
+        self.ids = list(self.color_img_dict.keys())
+        self.transform = transforms_list
+
+    def load_data(self, input_data_path):
+        with open(input_data_path) as f:
+            data_file_list = open(input_data_path, 'rt').read().splitlines()
+            # Get full list of image and labels
+            file_image = [s.split(' ')[0] for s in data_file_list]
+            file_label = [int(s.split(' ')[1]) for s in data_file_list]
+
+        return file_image, file_label
+
+    def __getitem__(self, index):
+
+        anchor_file = self.color_image[index]
+        anchor_id = self.color_label[index]
+
+        anchor_rgb = anchor_file
+        positive_rgb = self.color_image[np.random.choice([x for x in self.color_img_dict[anchor_id] if x != anchor_rgb])]
+        negative_id = np.random.choice([id for id in self.ids if id != anchor_id])
+        negative_rgb = self.color_image[np.random.choice(self.color_img_dict[negative_id])]
+        
+        anchor_ir = self.thermal_image[np.random.choice(self.thermal_img_dict[anchor_id])]
+        positive_ir =  self.thermal_image[np.random.choice([x for x in self.thermal_img_dict[anchor_id] if x != anchor_ir])]
+        negative_id = np.random.choice([id for id in self.ids if id != anchor_id])
+        negative_ir = self.thermal_image[np.random.choice(self.thermal_img_dict[negative_id])]
+        
+        anchor_label = np.array(anchor_id)  
+
+        if self.transform is not None:
+            anchor_rgb = self.transform(anchor_rgb)
+            positive_rgb = self.transform(positive_rgb)
+            negative_rgb = self.transform(negative_rgb)
+            
+            anchor_ir = self.transform(anchor_ir)
+            positive_ir = self.transform(positive_ir)
+            negative_ir = self.transform(negative_ir)
+
+        modality_rgb = torch.tensor([1,0]).float()
+        modality_ir = torch.tensor([0,1]).float()
+
+        return anchor_rgb, positive_rgb, negative_rgb, anchor_ir, positive_ir, negative_ir, anchor_label, modality_rgb, modality_ir
+
+    def __len__(self):
+        return len(self.color_label)
+
+
+class RegDB_eval_datasets(object):
+    def __init__(self, data_dir, transforms_list=None, mode='train', trial=1):
+
+        if mode == 'train':
+            self.visible_files = 'train_visible_' + str(trial) + '.txt'
+            self.thermal_files = 'train_thermal_' + str(trial) + '.txt'
+        elif mode == 'val':
+            self.visible_files = 'test_visible_' + str(trial) + '.txt'
+            self.thermal_files = 'test_thermal_' + str(trial) + '.txt'
+        else:
+            self.visible_files = 'test_visible_' + str(trial) + '.txt'
+            self.thermal_files = 'test_thermal_' + str(trial) + '.txt'
+
+
+        color_list   = os.path.join(data_dir, 'idx', self.visible_files)
+        thermal_list = os.path.join(data_dir, 'idx', self.thermal_files)
+
+        color_img_file, color_label = self.load_data(color_list)
+        thermal_img_file, thermal_label = self.load_data(thermal_list)
+
+        color_image = []
+        color_image_path = []
+        for i in range(len(color_img_file)):
+            img_path = os.path.join(data_dir, color_img_file[i])
+            color_image_path.append(img_path)
+            img = Image.open(img_path)
+            img = img.resize(settings.inp_size[::-1]) 
+            color_image.append((img, color_label[i], img_path))
+
+
+        thermal_image = []
+        thermal_image_path = []
+        for i in range(len(thermal_img_file)):
+            img_path = os.path.join(data_dir, thermal_img_file[i])
+            thermal_image_path.append(img_path)
+            img = Image.open(img_path)
+            img = img.resize(settings.inp_size[::-1], Image.ANTIALIAS)
+            thermal_image.append((img, thermal_label[i], img_path))
+
+        # make dict
+        color_img_dict = {}
+        for i in range(len(color_label)):
+            label = color_label[i]
+            if label not in color_img_dict.keys():
+                color_img_dict[label] = []
+
+        thermal_img_dict = {}
+        for i in range(len(thermal_label)):
+            label = thermal_label[i]
+            if label not in thermal_img_dict.keys():
+                thermal_img_dict[label] = []
+
+        color_ids = list(color_img_dict.keys())
+        thermal_ids = list(thermal_img_dict.keys())
+
+        query = thermal_image
+        num_query_imgs = len(query)
+        num_query_pids = len(thermal_ids)
+
+        gallery = color_image
+        num_gallery_pids = len(color_ids)
+        num_gallery_imgs = len(gallery)
+
+        num_total_pids = num_query_pids
+        num_total_imgs = num_query_imgs + num_gallery_imgs
+
+        print("Dataset statistics:")
+        print("  ------------------------------")
+        print("  subset   | # ids | # images")
+        print("  ------------------------------")
+        print("  query    | {:5d} | {:8d}".format(num_query_pids, num_query_imgs))
+        print("  gallery  | {:5d} | {:8d}".format(num_gallery_pids, num_gallery_imgs))
+        print("  ------------------------------")
+        print("  total    | {:5d} | {:8d}".format(num_total_pids, num_total_imgs))
+        print("  ------------------------------")
+
+        self.query = query
+        self.gallery = gallery
+
+        self.num_query_pids = num_query_pids
+        self.num_gallery_pids = num_gallery_pids
+
+    def load_data(self, input_data_path):
+        with open(input_data_path) as f:
+            data_file_list = open(input_data_path, 'rt').read().splitlines()
+            # Get full list of image and labels
+            file_image = [s.split(' ')[0] for s in data_file_list]
+            file_label = [int(s.split(' ')[1]) for s in data_file_list]
+
+        return file_image, file_label
+
+class RegDB_wrapper(Dataset):
+    """For evaluation"""
+    def __init__(self, dataset, transform=None):
+        self.dataset = dataset
+        self.transform = transform
+
+    def __len__(self):
+        return len(self.dataset)
+
+    def __getitem__(self, index):
+        img, pid, img_path = self.dataset[index]
+
+        if self.transform is not None:
+            img = self.transform(img)
+        return img, pid, img_path
+
+if __name__ == '__main__':
+    dataset = RegDB_triplet_dataset(settings.regdb_dir, settings.transforms_list, trial=2)
+    print(len(dataset))
+    data = RegDB_eval_datasets(settings.regdb_dir, settings.test_transforms_list, trial=10)
+    gallery_set = RegDB_wrapper(data.gallery)
+    query_set = RegDB_wrapper(data.query)
+    print(len(gallery_set))
+
+
+

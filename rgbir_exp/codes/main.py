@@ -1,3 +1,8 @@
+"""
+Angular Triplet Loss
+YE, Hanrong et al, Bi-directional Exponential Angular Triplet Loss for RGB-Infrared Person Re-Identification
+"""
+
 import settings
 import os
 os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"   
@@ -42,7 +47,7 @@ class Session:
         logger.info('set model dir as %s' % settings.model_dir)
 
         ##################################### Import models ###########################
-        self.feature_generator = Baseline(last_stride=1, model_path='/app/pretrained_models/resnet50-19c8e357.pth')
+        self.feature_generator = Baseline(last_stride=1, model_path=settings.pretrained_model_path)
 
         self.feature_embedder_rgb = FeatureEmbedder(2048)
         self.feature_embedder_ir = FeatureEmbedder(2048)

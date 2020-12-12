@@ -1,3 +1,8 @@
+"""
+Angular Triplet Loss
+YE, Hanrong et al, Bi-directional Exponential Angular Triplet Loss for RGB-Infrared Person Re-Identification
+"""
+
 import torch.nn.functional as F
 import torch
 from torch import nn

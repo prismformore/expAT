@@ -1,0 +1,2 @@
+# Criterion: Softmax Loss + expAT Loss + Center Loss
+python tools/train.py --config_file='configs/softmax_expAT_center.yml' MODEL.DEVICE_ID "('1')" DATASETS.NAMES "('market1501')" DATASETS.ROOT_DIR "('/app/rgbir/rgbreid/data')" OUTPUT_DIR "('../log/market1501/expAT_center')"

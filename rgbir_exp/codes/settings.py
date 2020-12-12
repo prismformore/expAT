@@ -17,6 +17,7 @@ log_dir = '../logdir'
 show_dir = '../showdir'
 model_dir = '../models'
 data_folder = '/app/SYSU-MM01'
+pretrained_model_path = '/app/pretrained_models/resnet50-19c8e357.pth'
 
 model_path = os.path.join(model_dir, 'latest')
 save_steps = 5000
