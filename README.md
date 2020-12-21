@@ -68,3 +68,6 @@ A chinese "in a nutshelf" blog on zhihu: [Is the Euclidean Distance still the be
 
 # Contact:
 Just raise an issue, or e-mail to Hanrong Ye: leoyhr AT pku.edu.cn
+
+# License
+[Creative commons license](https://creativecommons.org/licenses/by-nc/4.0/) which allows for personal and research use only. 
