@@ -53,14 +53,12 @@ bash Experiment-expAT-market.sh
 # CITE ME
 Our paper has been formally accepted by the IEEE Transactions on Image Processing. If you find our paper/codes useful, please kindly consider citing the paper:
 ```
-@ARTICLE{expat,
-    title={Bi-directional Exponential Angular Triplet Loss for RGB-Infrared Person Re-Identification},
-    author={Hanrong Ye and Hong Liu and Fanyang Meng and Xia Li},
-    year={2020},
-    eprint={2006.00878},
-    archivePrefix={arXiv},
-    primaryClass={cs.CV}
-}
+@ARTICLE{expAT,
+  author={Hanrong Ye and Hong Liu and Fanyang Meng and Xia Li},
+  journal={IEEE Transactions on Image Processing}, 
+  title={Bi-directional Exponential Angular Triplet Loss for RGB-Infrared Person Re-Identification}, 
+  year={2020},
+  doi={10.1109/TIP.2020.3045261}}
 ```
 
 # Related Links
