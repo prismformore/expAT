@@ -2,7 +2,7 @@
  <img src="./triplet_issue.png" width = "600" alt="expAT" align=center />
 
 
-[arXiv page](https://arxiv.org/abs/2006.00878)
+Paper accepted by the **IEEE Transactions on Image Processing**: [arXiv](https://arxiv.org/abs/2006.00878), [IEEE Xplore](https://ieeexplore.ieee.org/document/9303428)
 
 Most existing works use Euclidean metric based constraints to resolve the discrepancy between features of different modalities. However, these methods are incapable of learning angularly discriminative feature embedding because Euclidean distance cannot measure the included angle between embedding vectors effectively. 
 
@@ -50,8 +50,8 @@ bash Experiment-expAT-market.sh
 ```
 
 
-# CITE ME
-Our paper has been formally accepted by the IEEE Transactions on Image Processing. If you find our paper/codes useful, please kindly consider citing the paper:
+# CITE ME!
+If you find our paper/codes useful, please kindly consider citing the paper:
 ```
 @ARTICLE{expAT,
   author={Hanrong Ye and Hong Liu and Fanyang Meng and Xia Li},
