@@ -57,8 +57,11 @@ If you find our paper/codes useful, please kindly consider citing the paper:
   author={Hanrong Ye and Hong Liu and Fanyang Meng and Xia Li},
   journal={IEEE Transactions on Image Processing}, 
   title={Bi-directional Exponential Angular Triplet Loss for RGB-Infrared Person Re-Identification}, 
-  year={2020},
-  doi={10.1109/TIP.2020.3045261}}
+  year={2021},
+  volume={30},
+  number={},
+  pages={1583-1595},
+  doi={10.1109/TIP.2020.3045261}} 
 ```
 
 # Related Links
