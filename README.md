@@ -50,7 +50,7 @@ bash Experiment-expAT-market.sh
 ```
 
 
-# CITE ME!
+# CITE
 If you find our paper/codes useful, please kindly consider citing the paper:
 ```
 @ARTICLE{expAT,
